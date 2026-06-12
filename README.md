@@ -45,7 +45,6 @@ One table element, one dataset, one query function, one column spec.
     data,
     query,                       // query(data, params) -> rows
     rowHref: (r) => r.url,       // click a row, go to its source
-    externalHint: "work",        // column whose link underlines on hover
     columns: [
       { id: "designer", param: "designer", sortable: true, group: true,
         width: "30%", variants: ["strong"],
@@ -88,8 +87,10 @@ All state lives in the URL. `?designer=Max+Bill&sort=-year` is a view; reload it
 | --- | --- |
 | click a header | sort cycles: descending → ascending → unsorted |
 | click a cell value | filter to that value; click it again to clear |
+| hover a cell value | underline — the sign that a click here filters |
 | click a filtered header | clear that filter (× appears on hover) |
 | click anywhere else in a row | navigate to the row's source link |
+| hover where a click would go external | the destination URL appears in a corner status chip |
 | middle-click / modifier-click a row | open the source in a new tab |
 | Escape | clear all filters and sorting |
 | back / forward | walk your view history; state is the URL |

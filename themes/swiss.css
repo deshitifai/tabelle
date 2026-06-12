@@ -71,8 +71,9 @@ table.lt { border-collapse: separate; border-spacing: 0; width: 100%; table-layo
 .lt th.has-value:not(.filtered) { cursor: default; }
 
 .lt td { font-size: 0.875rem; line-height: 1.5; }
-.lt.lt-rowlink tbody tr { cursor: alias; }
 .lt tbody a[data-filter] { cursor: pointer; }
+/* underline = a click here filters */
+.lt tbody a[data-filter]:hover { text-decoration: underline; }
 /* ditto mark: a hairline showing how far a pinned value's range extends */
 /* overflow:clip (NOT hidden — hidden would break sticky) hard-clips label
    painting to the cell, so no engine's compositing can bleed it over the
@@ -95,7 +96,15 @@ table.lt { border-collapse: separate; border-spacing: 0; width: 100%; table-layo
 }
 .lt td:hover .clear { opacity: 0.45; }
 .lt td .clear:hover { opacity: 0.85; }
-.lt td a.ext { text-decoration: underline; }
+/* corner status chip: the destination URL when a click would go external */
+.lt-status {
+  position: fixed; left: 0; bottom: 0; z-index: 6;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; letter-spacing: 0.02em;
+  background: var(--bg); color: var(--muted);
+  border: 1px solid var(--line); border-left: 0; border-bottom: 0;
+  padding: 0.3rem 0.7rem; pointer-events: none;
+  max-width: 70vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 
 /* ---- column variants ---- */
 .lt td.lt-strong { font-weight: 500; }

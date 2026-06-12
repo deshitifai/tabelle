@@ -1,6 +1,6 @@
 {
   "name": "tabelle",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "a single-page, URL-addressable list table — sort, filter, group; every view is an address",
   "type": "module",
   "main": "listtable.js",

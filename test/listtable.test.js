@@ -42,7 +42,6 @@ function init() {
     data,
     query,
     rowHref: (r) => r.url,
-    externalHint: "work",
     columns: COLUMNS,
   });
 }
@@ -138,6 +137,46 @@ test("escape clears all filters and sorting", () => {
   dom.window.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
   assert.equal(rows().length, data.works.length);
   assert.equal(dom.window.location.search, "");
+});
+
+function hover(target, el) {
+  // jsdom has no layout, so hit-testing is stubbed; the engine only asks
+  // elementFromPoint what sits under the pointer
+  dom.window.document.elementFromPoint = () => el;
+  target.dispatchEvent(
+    new dom.window.MouseEvent("mousemove", { bubbles: true, clientX: 10, clientY: 10 }),
+  );
+}
+
+test("hovering an external link shows its url in the status chip", () => {
+  init();
+  const status = dom.window.document.querySelector(".lt-status");
+  assert.ok(status, "status chip element exists");
+  assert.equal(status.hidden, true, "hidden until an external hover");
+  const work = rows()[0].querySelector("td.work a");
+  hover(work, work);
+  assert.equal(status.hidden, false);
+  assert.ok(status.textContent.startsWith("https://en.wikipedia.org/"));
+});
+
+test("hovering a filter link keeps the status chip hidden", () => {
+  init();
+  const status = dom.window.document.querySelector(".lt-status");
+  const chip = dom.window.document.querySelector("a[data-filter]");
+  hover(chip, chip);
+  assert.equal(status.hidden, true, "filter affordance is the underline, not the chip");
+});
+
+test("leaving the table hides the status chip", () => {
+  init();
+  const status = dom.window.document.querySelector(".lt-status");
+  const work = rows()[0].querySelector("td.work a");
+  hover(work, work);
+  assert.equal(status.hidden, false);
+  dom.window.document.querySelector("tbody").dispatchEvent(
+    new dom.window.MouseEvent("mouseleave"),
+  );
+  assert.equal(status.hidden, true);
 });
 
 test("display-only href columns render plain external links", () => {

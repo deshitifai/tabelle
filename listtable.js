@@ -5,7 +5,9 @@
 // values constant across the result set lifted into the header (explicit
 // filters at full strength, incidental constants fainter), runs of equal
 // values collapsed into rowspan cells whose labels stick under the header,
-// and row-level navigation to an external source with a hover hint.
+// and row-level navigation to an external source. Hovering anywhere a click
+// would leave the site shows the destination URL in a corner status chip;
+// hovering anywhere a click would filter underlines the value (theme).
 //
 // All state lives in the URL, and filtering/sorting goes through the caller's
 // query(data, params) function — the same one served to sapi clients — so the
@@ -28,7 +30,7 @@
 //                { label, value } filter chips (e.g. showtimes)
 
 export function initListTable(config) {
-  const { data, query, columns, rowKey, rowHref, externalHint } = config;
+  const { data, query, columns, rowKey, rowHref } = config;
   const table = typeof config.table === "string" ? document.querySelector(config.table) : config.table;
   table.classList.add("lt");
   if (rowHref) table.classList.add("lt-rowlink");
@@ -130,7 +132,6 @@ export function initListTable(config) {
     tbody.textContent = "";
     renderedRows = [];
     groupSpans = [];
-    let hintTd = null;
     rows.forEach((row, i) => {
       const tr = document.createElement("tr");
       const href = rowHref ? rowHref(row) : null;
@@ -191,9 +192,7 @@ export function initListTable(config) {
           td.appendChild(content);
         }
         tr.appendChild(td);
-        if (col.id === externalHint) hintTd = td;
       }
-      tr._hintTd = hintTd;
       tbody.appendChild(tr);
       renderedRows.push(tr);
     });
@@ -216,7 +215,7 @@ export function initListTable(config) {
     }
 
     adjustStickyRanges();
-    updateExternalTarget();
+    updateExternalStatus();
   }
 
   // A pinned group label must never sit lower than the top of the last row it
@@ -330,35 +329,45 @@ export function initListTable(config) {
     if (tr && tr.dataset.href) window.open(tr.dataset.href, "_blank");
   });
 
-  // Underline the external destination hint for the row under the cursor,
-  // tracking both pointer movement and scroll beneath a stationary pointer.
-  let externalTarget = null;
+  // Show the destination URL in a corner status chip whenever a click at the
+  // pointer's position would leave the site (a plain external link, or a row
+  // background with a source href) — tracking both pointer movement and
+  // scroll beneath a stationary pointer. Filter links never show it: their
+  // affordance is the hover underline (theme).
+  const status = document.createElement("div");
+  status.className = "lt-status";
+  status.hidden = true;
+  document.body.appendChild(status);
   let pointerX = -1;
   let pointerY = -1;
 
-  function updateExternalTarget() {
-    let link = null;
+  function updateExternalStatus() {
+    let url = null;
     if (pointerY >= 0) {
       const el = document.elementFromPoint(pointerX, pointerY);
-      if (el && tbody.contains(el) && !el.closest("a[data-filter]")) {
-        const tr = rowAtY(pointerY);
-        if (tr && tr.dataset.href && tr._hintTd) link = tr._hintTd.querySelector("a");
+      if (el && tbody.contains(el)) {
+        const anchor = el.closest("a");
+        if (anchor && anchor.href && !anchor.dataset.filter && !anchor.dataset.clear) {
+          url = anchor.href;
+        } else if (!anchor) {
+          const tr = rowAtY(pointerY);
+          if (tr && tr.dataset.href) url = tr.dataset.href;
+        }
       }
     }
-    if (externalTarget && externalTarget !== link) externalTarget.classList.remove("ext");
-    externalTarget = link || null;
-    if (link) link.classList.add("ext");
+    status.hidden = !url;
+    if (url) status.textContent = url;
   }
 
   tbody.addEventListener("mousemove", (event) => {
     pointerX = event.clientX;
     pointerY = event.clientY;
-    updateExternalTarget();
+    updateExternalStatus();
   });
   tbody.addEventListener("mouseleave", () => {
     pointerX = -1;
     pointerY = -1;
-    updateExternalTarget();
+    updateExternalStatus();
   });
   // Escape clears all filters and sorting.
   window.addEventListener("keydown", (event) => {
@@ -374,7 +383,7 @@ export function initListTable(config) {
     "scroll",
     () => {
       clearTimeout(scrollSettle);
-      scrollSettle = setTimeout(updateExternalTarget, 80);
+      scrollSettle = setTimeout(updateExternalStatus, 80);
     },
     { passive: true }
   );
