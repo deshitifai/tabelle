@@ -1,0 +1,139 @@
+/* listtable theme: swiss — monochrome stone palette, IBM Plex, hairline rules,
+   sticky title + header stack. Structural rules the engine depends on (fixed
+   layout, sticky offsets, arrow/clear positioning) live here too; a theme is
+   the complete look of a listtable page. */
+
+:root {
+  --bg: #fafaf9;
+  --fg: #1c1917;
+  --muted: rgba(28, 25, 23, 0.55);
+  --line: #e7e5e4;
+  --title-size: clamp(1.8rem, 4.5vw, 3.2rem);
+  --title-block: calc(var(--title-size) + 2.1rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0c0a09;
+    --fg: #fafaf9;
+    --muted: rgba(250, 250, 249, 0.55);
+    --line: #292524;
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  font-family: "IBM Plex Sans", "Helvetica Neue", system-ui, sans-serif;
+  background: var(--bg); color: var(--fg); -webkit-font-smoothing: antialiased;
+  margin: 0 auto; max-width: 1100px; padding: 0 1.5rem 5rem;
+}
+a { color: inherit; text-decoration: none; }
+
+h1 {
+  font-size: var(--title-size); font-weight: 500; letter-spacing: -0.04em; line-height: 1;
+  margin: 0; padding: 1.2rem 0 0.9rem; white-space: nowrap;
+  position: sticky; top: 0; z-index: 3; background: var(--bg);
+  will-change: transform; /* compositor-driven sticky: no main-thread lag */
+}
+
+/* ---- table structure ---- */
+table.lt { border-collapse: separate; border-spacing: 0; width: 100%; table-layout: fixed;
+  isolation: isolate; }
+.lt th, .lt td { text-align: left; vertical-align: top; padding: 0.55rem 1rem 0.55rem 0; }
+
+.lt th {
+  position: sticky; top: var(--title-block); z-index: 2; background: var(--bg);
+  padding-top: 0; padding-bottom: 0.3rem; height: 1.9rem; cursor: pointer;
+  border-bottom: 1px solid var(--fg);
+  white-space: nowrap;
+  will-change: transform; /* compositor-driven sticky: no main-thread lag */
+}
+/* opaque shield above each header cell: seals any seam between the sticky
+   title and the sticky header, regardless of zoom or fractional pixels */
+.lt th::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 100%;
+  height: var(--title-block); background: var(--bg);
+}
+.lt th .arrow, .lt th .clear {
+  position: absolute; top: 0; line-height: 1.6rem;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.75rem;
+}
+.lt th .arrow { left: 0; opacity: 0.55; }
+.lt th .clear { right: 1rem; opacity: 0; cursor: pointer; }
+.lt th.filtered:hover .clear { opacity: 0.45; }
+.lt th .clear:hover { opacity: 0.85; }
+.lt th .value {
+  font-size: 0.8rem; font-weight: 500; line-height: 1.6rem; opacity: 0.85;
+  padding-left: 1.1rem; display: inline-block;
+}
+.lt th .value.implied { opacity: 0.68; font-weight: 400; }
+.lt th.has-value .arrow { display: none; }
+.lt th.has-value .value { padding-left: 0; }
+.lt th.has-value:not(.filtered) { cursor: default; }
+
+.lt td { font-size: 0.875rem; line-height: 1.5; }
+.lt.lt-rowlink tbody tr { cursor: alias; }
+.lt tbody a[data-filter] { cursor: pointer; }
+/* ditto mark: a hairline showing how far a pinned value's range extends */
+/* overflow:clip (NOT hidden — hidden would break sticky) hard-clips label
+   painting to the cell, so no engine's compositing can bleed it over the
+   header or title */
+.lt td.lt-group[rowspan] { position: relative; z-index: 0; overflow: clip; }
+/* the line hangs from the sticky label itself (so it always starts below the
+   pinned value) and overflow:clip on the cell cuts it at the group's end */
+.lt td.lt-group[rowspan] > a::after, .lt td.lt-group[rowspan] > .lt-pin::after {
+  content: ""; position: absolute; left: 1px; width: 1px;
+  top: calc(100% + 0.4rem); height: 300vh;
+  background: var(--line); opacity: 0.5;
+}
+/* only multi-row group cells pin; single-row values scroll with their row */
+.lt td.lt-group[rowspan] > a, .lt td.lt-group[rowspan] > .lt-pin {
+  position: sticky; top: calc(var(--title-block) + 2.2rem); display: inline-block; z-index: 0; }
+.lt td a.lt-active-filter { text-decoration: underline; }
+.lt td .clear {
+  font-family: "IBM Plex Mono", monospace; font-size: 0.75rem;
+  margin-left: 0.45rem; opacity: 0; cursor: pointer;
+}
+.lt td:hover .clear { opacity: 0.45; }
+.lt td .clear:hover { opacity: 0.85; }
+.lt td a.ext { text-decoration: underline; }
+
+/* ---- column variants ---- */
+.lt td.lt-strong { font-weight: 500; }
+.lt .lt-mono { font-family: "IBM Plex Mono", monospace; font-size: 0.75rem; letter-spacing: 0.02em; }
+.lt td.lt-mono { padding-top: 0.65rem; }
+.lt .lt-muted { color: var(--muted); }
+.lt .lt-tag { text-transform: uppercase; letter-spacing: 0.12em; }
+.lt td.lt-nowrap { white-space: nowrap; }
+.lt td.lt-mono a { white-space: nowrap; }
+
+/* ---- title-bar chrome (about / subscribe) ---- */
+.lt-chrome {
+  position: absolute; right: 0; bottom: 1.1rem;
+  display: flex; gap: 1.4rem; align-items: baseline;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.75rem; font-weight: 400;
+  letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+}
+.lt-chrome details { position: relative; }
+.lt-chrome summary { list-style: none; cursor: pointer; color: var(--muted); }
+.lt-chrome summary::-webkit-details-marker { display: none; }
+.lt-chrome summary:hover { color: var(--fg); }
+.lt-panel {
+  position: absolute; right: 0; top: calc(100% + 0.5rem); z-index: 5;
+  background: var(--bg); border: 1px solid var(--line); padding: 0.55rem 0.8rem;
+}
+.lt-subscribe-row { display: flex; gap: 0.8rem; align-items: center; }
+.lt-subscribe-row select {
+  font-family: "IBM Plex Mono", monospace; font-size: 0.75rem;
+  background: var(--bg); color: var(--fg); border: 1px solid var(--line);
+  padding: 0.15rem 0.3rem; letter-spacing: 0.02em;
+}
+.lt-subscribe-row a { color: var(--muted); }
+.lt-subscribe-row a:hover { color: var(--fg); }
+.lt-about-panel {
+  font-family: "IBM Plex Sans", "Helvetica Neue", system-ui, sans-serif;
+  font-size: 0.875rem; line-height: 1.55; text-transform: none; letter-spacing: 0;
+  white-space: normal; width: 24rem; max-width: 80vw; padding: 0.9rem 1.1rem;
+}
+.lt-about-panel p { margin: 0 0 0.7rem; }
+.lt-about-panel p:last-child { margin-bottom: 0; }
+.lt-about-panel a { text-decoration: underline; }

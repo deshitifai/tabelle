@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>tabelle — swiss graphic design</title>
+  <link rel="stylesheet" href="../themes/swiss.css">
+</head>
+<body>
+  <h1 id="title">swiss graphic design</h1>
+  <table id="works"></table>
+  <script type="module">
+    import { initListTable, initAbout } from "../listtable.js";
+    import query from "./query.js";
+    import data from "./data.js";
+
+    initListTable({
+      table: "#works",
+      data,
+      query,
+      rowHref: (r) => r.url,
+      externalHint: "work",
+      columns: [
+        {
+          id: "designer", param: "designer", sortable: true, group: true,
+          width: "28%", variants: ["strong"],
+          key: (r) => r.designer, label: (r) => r.designer, value: (r) => r.designer,
+        },
+        {
+          id: "work", width: "44%",
+          label: (r) => r.work, href: (r) => r.url,
+        },
+        {
+          id: "year", param: "year", sortable: true, width: "12%", variants: ["mono"],
+          key: (r) => r.year, label: (r) => String(r.year), value: (r) => String(r.year),
+        },
+        {
+          id: "kind", param: "kind", width: "16%", variants: ["tag", "muted"],
+          key: (r) => r.kind, label: (r) => r.kind, value: (r) => r.kind,
+        },
+      ],
+    });
+
+    initAbout({
+      container: "#title",
+      html: "<p><strong>tabelle</strong> renders any dataset as one flat, URL-addressable table. Click headers to sort, values to filter, rows to visit the source. Escape clears everything.</p><p>This demo lists landmark works of Swiss graphic design.</p>",
+    });
+  </script>
+</body>
+</html>

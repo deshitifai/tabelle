@@ -1,0 +1,27 @@
+{
+  "name": "tabelle",
+  "version": "0.1.0",
+  "description": "a single-page, URL-addressable list table — sort, filter, group; every view is an address",
+  "type": "module",
+  "main": "listtable.js",
+  "exports": {
+    ".": "./listtable.js",
+    "./themes/swiss.css": "./themes/swiss.css"
+  },
+  "files": [
+    "listtable.js",
+    "themes"
+  ],
+  "scripts": {
+    "demo": "node scripts/serve-demo.js",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "jsdom": "^24.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": "github:mrjf/tabelle",
+  "license": "MIT"
+}
