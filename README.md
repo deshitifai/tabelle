@@ -5,7 +5,7 @@
 | Field | Value |
 | --- | --- |
 | Package | `tabelle` |
-| Artifact | one ES module + one theme stylesheet (+ optional `calendar.js`, `map.js`) |
+| Artifact | one ES module + one theme stylesheet (calendar/map companions live in-repo, not yet published) |
 | Dependencies | none |
 | Inspiration | [swiss.ziki.boo](https://swiss.ziki.boo) |
 | In production | the table listings on lite.cat sites ([bayai.lite.cat](https://bayai.lite.cat), …) and mve.cat sites |
@@ -138,6 +138,10 @@ Sort semantics live there too: a sort key need not be a raw field. The demo's `q
 | `initSubscribe({ container, feeds })` | a *subscribe* dropdown: feed selector + google / apple / outlook / ics / rss links |
 
 The download dropdown is on by default: `initListTable` adds it to the page's `<h1>` without being asked. Disable it with `download: false`, name the file with `downloadFilename`, or point `chromeContainer` at a different title element.
+
+### Companions (not yet published)
+
+`calendar.js` and `map.js` live in this repo but are **not part of the published `@mrjf/tabelle` package yet** — they'll ship in a later release. Until then, vendor a copy from this repo if you want them.
 
 ### Calendar companion
 

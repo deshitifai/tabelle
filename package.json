@@ -1,40 +1,35 @@
 {
-  "name": "tabelle",
-  "version": "0.2.0",
+  "name": "@mrjf/tabelle",
+  "version": "0.3.0",
   "description": "a single-page, URL-addressable list table — sort, filter, group; every view is an address",
   "type": "module",
   "main": "listtable.js",
   "exports": {
     ".": "./listtable.js",
-    "./calendar.js": "./calendar.js",
-    "./map.js": "./map.js",
     "./themes/swiss.css": "./themes/swiss.css"
   },
   "files": [
     "listtable.js",
-    "calendar.js",
-    "map.js",
     "themes"
   ],
   "scripts": {
     "build:demo": "node scripts/build-demo.js",
     "demo": "node scripts/build-demo.js && node scripts/serve-demo.js",
-    "test": "node --test"
+    "test": "node --test",
+    "prepublishOnly": "npm test && npm run build:demo"
   },
   "devDependencies": {
     "jsdom": "^24.0.0"
   },
-  "peerDependencies": {
-    "leaflet": ">=1.9"
-  },
-  "peerDependenciesMeta": {
-    "leaflet": {
-      "optional": true
-    }
-  },
   "engines": {
     "node": ">=20"
   },
-  "repository": "github:mrjf/tabelle",
-  "license": "MIT"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrjf/tabelle.git"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
 }
