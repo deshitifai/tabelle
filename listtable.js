@@ -39,6 +39,8 @@
 //   width     - colgroup width, e.g. "27%"
 //   mobileWidth - colgroup width under the theme's narrow breakpoint (the
 //                 desktop proportions rarely fit a phone), e.g. "23%"
+//   mobileHidden - drop this column entirely under the narrow breakpoint
+//                  (still filterable by URL and present in downloads)
 //   variants  - theme hook class suffixes, e.g. ["strong"] -> .lt-strong
 //   key(row)   - identity used for grouping / constant detection
 //   label(row) - display text
@@ -62,6 +64,9 @@ export function initListTable(config) {
       // a separate proportion the theme applies under its narrow breakpoint;
       // widths stay fixed either way, so filtering never reflows the columns
       if (col.mobileWidth) colEl.style.setProperty("--lt-mobile-width", col.mobileWidth);
+      // the theme zeroes this col's width under the breakpoint; its cells carry
+      // lt-mobile-hidden (via variantClasses) so the whole column drops out
+      if (col.mobileHidden) colEl.className = "lt-mobile-hidden";
       colgroup.appendChild(colEl);
     }
     table.prepend(colgroup);
@@ -114,6 +119,9 @@ export function initListTable(config) {
   function variantClasses(col) {
     const classes = [col.id, ...(col.variants || []).map((v) => `lt-${v}`)];
     if (col.group) classes.push("lt-group");
+    // the theme drops these columns under its narrow breakpoint; the class
+    // rides every header and cell so display:none hides the whole column
+    if (col.mobileHidden) classes.push("lt-mobile-hidden");
     return classes.join(" ");
   }
 

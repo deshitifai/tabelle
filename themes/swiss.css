@@ -218,14 +218,20 @@ table.lt { border-collapse: separate; border-spacing: 0; width: 100%; table-layo
   h1 { white-space: normal; padding-right: 0; }
   .lt-chrome { position: static; gap: 1.1rem; padding-bottom: 0.6rem; }
 
+  /* columns flagged mobileHidden drop out: zero the <col> so the survivors
+     re-proportion, and hide every header/cell that carries the class */
+  .lt colgroup col.lt-mobile-hidden { width: 0 !important; }
+  .lt th.lt-mobile-hidden, .lt td.lt-mobile-hidden { display: none; }
+
   /* re-cut for the narrow viewport; widths stay fixed so filtering never
      reflows the columns. A column's mobileWidth (engine emits it as
      --lt-mobile-width on the <col>) overrides its desktop width here; columns
      without one keep their desktop proportion. */
   .lt colgroup col[style*="--lt-mobile-width"] { width: var(--lt-mobile-width) !important; }
 
-  /* tighter gutters; the kind tag wraps and loses its wide tracking rather
-     than overflowing its cell */
+  /* tighter gutters; the tag's wide tracking relaxes so it wraps instead of
+     overflowing. lt-nowrap cells keep their single line — a column that can't
+     spare the width should be dropped with mobileHidden, not wrapped raggedly. */
   .lt th, .lt td { padding-right: 0.6rem; }
   .lt th { white-space: normal; }
   .lt td.lt-tag { white-space: normal; letter-spacing: 0.06em; }
