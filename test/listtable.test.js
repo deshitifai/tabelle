@@ -259,29 +259,29 @@ test("hovering an active filter previews nothing — clicking it would clear, no
   assert.equal(dom.window.document.querySelectorAll(".lt-dim").length, 0);
 });
 
-test("hovering a row fades all the others and reports it via onHover", () => {
+test("hovering a row marks it and reports it via onHover", () => {
   const seen = [];
   const t = init({ onHover: (row) => seen.push(row) });
   const tr = rows()[3];
   tr.querySelector("td").dispatchEvent(new dom.window.MouseEvent("mouseover", { bubbles: true }));
-  assert.ok(!tr.classList.contains("lt-dim"), "the hovered row stays lit");
-  assert.equal(rows().filter((r) => r.classList.contains("lt-dim")).length, rows().length - 1);
+  assert.ok(tr.classList.contains("lt-mark"), "the hovered row is marked");
+  assert.equal(rows().filter((r) => r.classList.contains("lt-dim")).length, 0);
   assert.equal(seen.at(-1), t.rows()[3], "onHover reports the hovered row");
 
   dom.window.document.querySelector("tbody").dispatchEvent(
     new dom.window.MouseEvent("mouseout", { bubbles: true }),
   );
-  assert.equal(dom.window.document.querySelectorAll(".lt-dim").length, 0, "leaving clears");
+  assert.equal(dom.window.document.querySelectorAll(".lt-mark").length, 0, "leaving clears");
   assert.equal(seen.at(-1), null);
 });
 
-test("highlight(row) drives the same fade from outside", () => {
+test("highlight(row) drives the same row mark from outside", () => {
   const t = init();
   t.highlight(t.rows()[0]);
-  assert.equal(rows().filter((r) => r.classList.contains("lt-dim")).length, rows().length - 1);
-  assert.ok(!rows()[0].classList.contains("lt-dim"));
+  assert.equal(rows().filter((r) => r.classList.contains("lt-dim")).length, 0);
+  assert.ok(rows()[0].classList.contains("lt-mark"));
   t.highlight(null);
-  assert.equal(dom.window.document.querySelectorAll(".lt-dim").length, 0);
+  assert.equal(dom.window.document.querySelectorAll(".lt-mark").length, 0);
 });
 
 test("hovering an external link shows its url in the status chip", () => {
@@ -320,6 +320,32 @@ test("display-only href columns render plain external links", () => {
   const work = rows()[0].querySelector("td.work a");
   assert.ok(work.href.startsWith("https://en.wikipedia.org/"));
   assert.equal(work.dataset.filter, undefined);
+});
+
+test("non-filter row areas open the row target link", () => {
+  const opened = [];
+  dom.window.open = (url, target) => opened.push({ url, target });
+  initListTable({
+    table: dom.window.document.querySelector("#t"),
+    data: { works: [{ title: "Launch", kind: "talk", url: "https://example.test/launch" }] },
+    query: (d) => d.works,
+    rowHref: (r) => r.url,
+    columns: [
+      { id: "title", label: (r) => r.title },
+      { id: "kind", param: "kind", label: (r) => r.kind, value: (r) => r.kind },
+    ],
+  });
+
+  rows()[0].querySelector("td.title").dispatchEvent(
+    new dom.window.MouseEvent("click", { bubbles: true, cancelable: true, metaKey: true }),
+  );
+  assert.deepEqual(opened, [{ url: "https://example.test/launch", target: "_blank" }]);
+
+  rows()[0].querySelector("td.kind a[data-filter]").dispatchEvent(
+    new dom.window.MouseEvent("click", { bubbles: true, cancelable: true }),
+  );
+  assert.equal(dom.window.location.search, "?kind=talk");
+  assert.deepEqual(opened, [{ url: "https://example.test/launch", target: "_blank" }]);
 });
 
 test("a grouped year column collapses runs under sort and filter (vertical ditto)", () => {

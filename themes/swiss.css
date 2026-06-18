@@ -81,6 +81,7 @@ table.lt { border-collapse: separate; border-spacing: 0; width: 100%; table-layo
 .lt th.has-value:not(.filtered) { cursor: default; }
 
 .lt td { font-size: 0.875rem; line-height: 1.5; }
+.lt.lt-rowlink tbody td { cursor: pointer; }
 .lt tbody a[data-filter] { cursor: pointer; }
 /* underline = a click here filters */
 .lt tbody a[data-filter]:hover { text-decoration: underline; }
@@ -88,6 +89,7 @@ table.lt { border-collapse: separate; border-spacing: 0; width: 100%; table-layo
    cells are dimmed by the engine only when their whole span would go */
 .lt td { transition: opacity 0.12s ease; }
 .lt tbody tr.lt-dim > td:not([rowspan]), .lt tbody td.lt-dim { opacity: 0.4; }
+.lt tbody tr.lt-mark > td:last-child { box-shadow: inset -2px 0 0 #C8102E; }
 /* ditto mark: a hairline showing how far a pinned value's range extends */
 /* overflow:clip (NOT hidden — hidden would break sticky) hard-clips label
    painting to the cell, so no engine's compositing can bleed it over the
@@ -128,6 +130,49 @@ table.lt { border-collapse: separate; border-spacing: 0; width: 100%; table-layo
 .lt .lt-tag { text-transform: uppercase; letter-spacing: 0.12em; }
 .lt td.lt-nowrap { white-space: nowrap; }
 .lt td.lt-mono a { white-space: nowrap; }
+
+/* ---- dateline (dateline.js): one thin line of event dates ---- */
+.lt-dateline {
+  position: relative; z-index: 3;
+  display: flex; gap: 1rem; align-items: flex-end;
+  margin: 1.1rem 0 0.45rem; padding-bottom: 0.2rem;
+  overflow-x: auto; scrollbar-width: thin;
+}
+.lt-dateline-month { flex: 0 0 auto; min-width: max-content; }
+.lt-dateline-month-label {
+  font-family: "IBM Plex Mono", monospace; font-size: 0.65rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted); line-height: 1.2;
+  margin-bottom: 0.28rem;
+}
+.lt-dateline-days { display: flex; gap: 0; align-items: flex-start; }
+.lt-dateline-cell {
+  position: relative; flex: 0 0 auto;
+  width: 1.45rem; padding-top: 0.35rem;
+}
+.lt-dateline-cell.lt-week-start:not(:first-child) { margin-left: 0.55rem; }
+.lt-dateline-cell:has(+ .lt-week-start)::before { right: -0.04rem; }
+.lt-dateline-cell::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0;
+  border-top: 1px solid var(--fg);
+}
+.lt-dateline-cell.lt-week-start::before { left: 0; }
+.lt-dateline-day {
+  appearance: none; border: 0; border-radius: 0; background: transparent; color: var(--fg);
+  font: 0.75rem/1 "IBM Plex Mono", monospace;
+  width: 1.45rem; height: 1.45rem; padding: 0;
+  cursor: pointer; text-align: center;
+}
+.lt-dateline-day:disabled {
+  color: var(--muted); cursor: default; opacity: 0.45;
+}
+.lt-dateline-day:not(:disabled):not(.lt-selected):hover { background: var(--line); }
+.lt-dateline-day.lt-selected {
+  background: var(--fg); color: var(--bg);
+}
+.lt-dateline-day:focus:not(:focus-visible) { outline: 0; }
+.lt-dateline-day:focus-visible {
+  outline: 1px solid var(--fg); outline-offset: 2px;
+}
 
 /* ---- calendar (calendar.js): one bare-bones week grid, busy weeks only ---- */
 .lt-cal { margin-top: 3.5rem; margin-bottom: 2.5rem; }

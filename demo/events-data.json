@@ -1,0 +1,112 @@
+{
+  "events": [
+    {
+      "date": "2026-06-01",
+      "end": "2026-06-01",
+      "title": "Opening Night: City Cinema",
+      "venue": "Roxy Hall",
+      "city": "Oakland",
+      "kind": "film",
+      "url": "https://example.com/events/opening-night"
+    },
+    {
+      "date": "2026-06-03",
+      "end": "2026-06-05",
+      "title": "Material Futures Workshop",
+      "venue": "Pier Studio",
+      "city": "San Francisco",
+      "kind": "workshop",
+      "url": "https://example.com/events/material-futures"
+    },
+    {
+      "date": "2026-06-06",
+      "end": "2026-06-06",
+      "title": "Noon Concert Series",
+      "venue": "Civic Steps",
+      "city": "Berkeley",
+      "kind": "music",
+      "url": "https://example.com/events/noon-concert"
+    },
+    {
+      "date": "2026-06-08",
+      "end": "2026-06-08",
+      "title": "Print Fair Preview",
+      "venue": "Warehouse 12",
+      "city": "Oakland",
+      "kind": "market",
+      "url": "https://example.com/events/print-fair-preview"
+    },
+    {
+      "date": "2026-06-10",
+      "end": "2026-06-12",
+      "title": "Independent Publishing Days",
+      "venue": "Mission Annex",
+      "city": "San Francisco",
+      "kind": "talk",
+      "url": "https://example.com/events/publishing-days"
+    },
+    {
+      "date": "2026-06-14",
+      "end": "2026-06-14",
+      "title": "Neighborhood Food Lab",
+      "venue": "Garden Kitchen",
+      "city": "Berkeley",
+      "kind": "food",
+      "url": "https://example.com/events/food-lab"
+    },
+    {
+      "date": "2026-06-17",
+      "end": "2026-06-20",
+      "title": "Summer Design Assembly",
+      "venue": "Marina Pavilion",
+      "city": "San Francisco",
+      "kind": "conference",
+      "url": "https://example.com/events/design-assembly"
+    },
+    {
+      "date": "2026-06-21",
+      "end": "2026-06-21",
+      "title": "Solstice Sound Walk",
+      "venue": "Lake Path",
+      "city": "Oakland",
+      "kind": "music",
+      "url": "https://example.com/events/sound-walk"
+    },
+    {
+      "date": "2026-06-24",
+      "end": "2026-06-25",
+      "title": "Archive Open House",
+      "venue": "Stacks Library",
+      "city": "Berkeley",
+      "kind": "exhibition",
+      "url": "https://example.com/events/archive-open-house"
+    },
+    {
+      "date": "2026-06-29",
+      "end": "2026-07-02",
+      "title": "New Tools Residency",
+      "venue": "Lab North",
+      "city": "San Francisco",
+      "kind": "workshop",
+      "url": "https://example.com/events/new-tools"
+    },
+    {
+      "date": "2026-07-04",
+      "end": "2026-07-04",
+      "title": "Public Works Picnic",
+      "venue": "Harbor Green",
+      "city": "Oakland",
+      "kind": "food",
+      "url": "https://example.com/events/public-works-picnic"
+    },
+    {
+      "date": "2026-07-07",
+      "end": "2026-07-09",
+      "title": "Type and Motion Lab",
+      "venue": "Letterform Center",
+      "city": "San Francisco",
+      "kind": "workshop",
+      "url": "https://example.com/events/type-motion"
+    }
+  ]
+}

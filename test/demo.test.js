@@ -12,6 +12,7 @@ import data from "../demo/data.json" with { type: "json" };
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const demoFile = join(root, "demo", "index.html");
+const eventsDemoFile = join(root, "demo", "events.html");
 
 before(() => {
   // test against the current parts, not a stale build
@@ -61,4 +62,51 @@ test("the demo directory is a sapi site: data.json, query.js, schema.json agree"
   const kinds = new Set(data.works.map((w) => w.kind));
   const allowed = new Set(schema.properties.works.items.properties.kind.enum);
   for (const kind of kinds) assert.ok(allowed.has(kind), `schema allows kind "${kind}"`);
+});
+
+test("the event demonstrator renders the dateline and filters by selected days", async () => {
+  const dom = await JSDOM.fromFile(eventsDemoFile, {
+    runScripts: "dangerously",
+    pretendToBeVisual: true,
+  });
+  const doc = dom.window.document;
+  assert.ok(doc.querySelector(".lt-dateline"), "dateline renders");
+  assert.equal(doc.querySelectorAll(".lt-dateline-month-label").length, 2, "june and july groups render");
+  const july = [...doc.querySelectorAll(".lt-dateline-day")]
+    .find((button) => button.dataset.date === "2026-07-01");
+  july.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true, cancelable: true }));
+  const rows = doc.querySelectorAll("tbody tr");
+  assert.equal(rows.length, 1, "only the event covering July 1 remains");
+  assert.match(rows[0].textContent, /New Tools Residency/);
+});
+
+test("event table date filters and dateline selection stay aligned", async () => {
+  const dom = await JSDOM.fromFile(eventsDemoFile, {
+    runScripts: "dangerously",
+    pretendToBeVisual: true,
+  });
+  const doc = dom.window.document;
+  const tableDate = [...doc.querySelectorAll('td.date a[data-filter]')]
+    .find((a) => a.dataset.filter === "date=2026-06-10");
+  tableDate.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true, cancelable: true }));
+  const datelineDate = doc.querySelector('.lt-dateline-day[data-date="2026-06-10"]');
+  assert.ok(datelineDate.classList.contains("lt-selected"));
+  assert.equal(datelineDate.getAttribute("aria-pressed"), "true");
+  assert.equal(doc.querySelectorAll("tbody tr").length, 1);
+});
+
+test("hovering a dateline date previews the same date filter in the table", async () => {
+  const dom = await JSDOM.fromFile(eventsDemoFile, {
+    runScripts: "dangerously",
+    pretendToBeVisual: true,
+  });
+  const doc = dom.window.document;
+  const june4 = doc.querySelector('.lt-dateline-day[data-date="2026-06-04"]');
+  june4.dispatchEvent(new dom.window.MouseEvent("mouseover", { bubbles: true }));
+  const dimmed = [...doc.querySelectorAll("tbody tr.lt-dim")];
+  assert.equal(dimmed.length, 11);
+  assert.match(doc.querySelector("tbody tr:not(.lt-dim)").textContent, /Material Futures Workshop/);
+
+  doc.querySelector(".lt-dateline").dispatchEvent(new dom.window.MouseEvent("mouseout", { bubbles: true }));
+  assert.equal(doc.querySelectorAll("tbody tr.lt-dim").length, 0);
 });

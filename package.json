@@ -6,10 +6,12 @@
   "main": "listtable.js",
   "exports": {
     ".": "./listtable.js",
+    "./dateline": "./dateline.js",
     "./themes/swiss.css": "./themes/swiss.css"
   },
   "files": [
     "listtable.js",
+    "dateline.js",
     "themes"
   ],
   "scripts": {
