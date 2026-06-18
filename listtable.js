@@ -125,6 +125,16 @@ export function initListTable(config) {
     return classes.join(" ");
   }
 
+  function rowIdentity(row) {
+    return rowKey ? rowKey(row) : row;
+  }
+
+  function rowIndex(row) {
+    if (!rowKey) return lastRows.indexOf(row);
+    const id = rowIdentity(row);
+    return lastRows.findIndex((candidate) => rowIdentity(candidate) === id);
+  }
+
   // Param state is held in memory and mirrored to the URL when the browser
   // allows it (file:// documents reject replaceState) — filtering must never
   // depend on the URL actually having changed.
@@ -482,7 +492,7 @@ export function initListTable(config) {
     clearDim();
     clearMark();
     if (row == null) return;
-    const index = lastRows.indexOf(row);
+    const index = rowIndex(row);
     if (index >= 0 && renderedRows[index]) renderedRows[index].classList.add("lt-mark");
   }
 
@@ -502,8 +512,8 @@ export function initListTable(config) {
       return;
     }
     params[key] = value;
-    const survivors = new Set(query(data, params));
-    dimRows((row) => survivors.has(row));
+    const survivors = new Set(query(data, params).map(rowIdentity));
+    dimRows((row) => survivors.has(rowIdentity(row)));
   }
 
   function previewFilter(link) {

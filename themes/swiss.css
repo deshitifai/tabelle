@@ -89,7 +89,7 @@ table.lt { border-collapse: separate; border-spacing: 0; width: 100%; table-layo
    cells are dimmed by the engine only when their whole span would go */
 .lt td { transition: opacity 0.12s ease; }
 .lt tbody tr.lt-dim > td:not([rowspan]), .lt tbody td.lt-dim { opacity: 0.4; }
-.lt tbody tr.lt-mark > td:last-child { box-shadow: inset -2px 0 0 #C8102E; }
+.lt tbody tr.lt-mark { box-shadow: inset -2px 0 0 #C8102E; }
 /* ditto mark: a hairline showing how far a pinned value's range extends */
 /* overflow:clip (NOT hidden — hidden would break sticky) hard-clips label
    painting to the cell, so no engine's compositing can bleed it over the

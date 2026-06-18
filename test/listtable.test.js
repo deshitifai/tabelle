@@ -237,6 +237,19 @@ test("hovering a filter value fades the rows it would remove", () => {
   assert.equal(rows().filter((tr) => tr.classList.contains("lt-dim")).length, 0);
 });
 
+test("filter preview uses rowKey when query returns fresh row objects", () => {
+  init({
+    rowKey: (r) => r.url,
+    query: (source, params) => query(source, params).map((row) => ({ ...row })),
+  });
+  const chip = [...dom.window.document.querySelectorAll("a[data-filter]")]
+    .find((a) => a.dataset.filter === "kind=typeface");
+  hoverChip(chip);
+  const dimmed = rows().filter((tr) => tr.classList.contains("lt-dim"));
+  assert.equal(dimmed.length, data.works.length - 7, "only non-matching rows fade");
+  assert.ok(!chip.closest("tr").classList.contains("lt-dim"), "the hovered row survives");
+});
+
 test("a group cell stays lit while any row in its span survives the preview", () => {
   init();
   const chip = [...dom.window.document.querySelectorAll("a[data-filter]")]
