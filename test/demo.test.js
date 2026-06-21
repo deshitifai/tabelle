@@ -13,6 +13,7 @@ import data from "../demo/data.json" with { type: "json" };
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const demoFile = join(root, "demo", "index.html");
 const eventsDemoFile = join(root, "demo", "events.html");
+const marinOverflowDemoFile = join(root, "demo", "marin-overflow.html");
 
 before(() => {
   // test against the current parts, not a stale build
@@ -109,4 +110,17 @@ test("hovering a dateline date previews the same date filter in the table", asyn
 
   doc.querySelector(".lt-dateline").dispatchEvent(new dom.window.MouseEvent("mouseout", { bubbles: true }));
   assert.equal(doc.querySelectorAll("tbody tr.lt-dim").length, 0);
+});
+
+test("the marin overflow demonstrator keeps long time values in their column", async () => {
+  const dom = await JSDOM.fromFile(marinOverflowDemoFile, {
+    runScripts: "dangerously",
+    pretendToBeVisual: true,
+  });
+  const doc = dom.window.document;
+  assert.equal(doc.querySelectorAll("script[src], link[rel=stylesheet]").length, 0);
+  assert.equal(doc.querySelectorAll("tbody tr").length, 4);
+  assert.match(doc.querySelector("tbody tr").textContent, /9:30 AM - 11:30 AMBoard Meeting/);
+  assert.match(doc.querySelector("style").textContent, /overflow: clip; overflow-wrap: anywhere;/);
+  assert.ok(doc.querySelector("td.time.lt-mono.lt-muted.lt-nowrap"));
 });

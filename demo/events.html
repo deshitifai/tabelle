@@ -90,7 +90,10 @@ table.lt { border-collapse: separate; border-spacing: 0; width: 100%; table-layo
 .lt th.has-value .arrow { display: none; }
 .lt th.has-value:not(.filtered) { cursor: default; }
 
-.lt td { font-size: 0.875rem; line-height: 1.5; }
+.lt td {
+  font-size: 0.875rem; line-height: 1.5;
+  overflow: clip; overflow-wrap: anywhere;
+}
 .lt.lt-rowlink tbody td { cursor: pointer; }
 .lt tbody a[data-filter] { cursor: pointer; }
 /* underline = a click here filters */
@@ -99,7 +102,7 @@ table.lt { border-collapse: separate; border-spacing: 0; width: 100%; table-layo
    cells are dimmed by the engine only when their whole span would go */
 .lt td { transition: opacity 0.12s ease; }
 .lt tbody tr.lt-dim > td:not([rowspan]), .lt tbody td.lt-dim { opacity: 0.4; }
-.lt tbody tr.lt-mark > td:last-child { box-shadow: inset -2px 0 0 #C8102E; }
+.lt tbody tr.lt-mark { box-shadow: inset -2px 0 0 #C8102E; }
 /* ditto mark: a hairline showing how far a pinned value's range extends */
 /* overflow:clip (NOT hidden — hidden would break sticky) hard-clips label
    painting to the cell, so no engine's compositing can bleed it over the
@@ -431,6 +434,16 @@ function initListTable(config) {
     // rides every header and cell so display:none hides the whole column
     if (col.mobileHidden) classes.push("lt-mobile-hidden");
     return classes.join(" ");
+  }
+
+  function rowIdentity(row) {
+    return rowKey ? rowKey(row) : row;
+  }
+
+  function rowIndex(row) {
+    if (!rowKey) return lastRows.indexOf(row);
+    const id = rowIdentity(row);
+    return lastRows.findIndex((candidate) => rowIdentity(candidate) === id);
   }
 
   // Param state is held in memory and mirrored to the URL when the browser
@@ -790,7 +803,7 @@ function initListTable(config) {
     clearDim();
     clearMark();
     if (row == null) return;
-    const index = lastRows.indexOf(row);
+    const index = rowIndex(row);
     if (index >= 0 && renderedRows[index]) renderedRows[index].classList.add("lt-mark");
   }
 
@@ -810,8 +823,8 @@ function initListTable(config) {
       return;
     }
     params[key] = value;
-    const survivors = new Set(query(data, params));
-    dimRows((row) => survivors.has(row));
+    const survivors = new Set(query(data, params).map(rowIdentity));
+    dimRows((row) => survivors.has(rowIdentity(row)));
   }
 
   function previewFilter(link) {

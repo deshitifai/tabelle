@@ -6,7 +6,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>tabelle — swiss graphic design</title>
+  <title>tabelle — marin overflow</title>
   <style>
 /* listtable theme: swiss — monochrome stone palette, IBM Plex, hairline rules,
    sticky title + header stack. Structural rules the engine depends on (fixed
@@ -305,8 +305,8 @@ table.lt { border-collapse: separate; border-spacing: 0; width: 100%; table-layo
   </style>
 </head>
 <body>
-  <h1 id="title">swiss graphic design</h1>
-  <table id="works"></table>
+  <h1 id="title">marin events</h1>
+  <table id="marin-events"></table>
   <script>
 // listtable — a single-page, URL-addressable list table.
 //
@@ -1090,78 +1090,47 @@ function initSubscribe(config) {
   return details;
 }
 
-// The demo's query function — the same shape a sapi site would serve as
-// query.js. Exact-match params per column, plus sort=key / sort=-key.
-//
-// A sort key need not be a raw field: SORT_KEYS derives the comparable for
-// keys where the natural order isn't the stored string. People sort by last
-// name (full name breaks ties between siblings of a surname).
-const SORT_KEYS = {
-  designer: (r) => `${r.designer.split(" ").at(-1)} ${r.designer}`,
-};
-
 function query(data, params) {
-  let rows = data.works;
-  for (const key of ["designer", "kind", "year"]) {
+  let rows = data.events;
+  for (const key of ["date", "kind"]) {
     if (params[key]) rows = rows.filter((r) => String(r[key]) === String(params[key]));
-  }
-  const sort = params.sort || "";
-  const key = sort.replace(/^-/, "");
-  if (key) {
-    const dir = sort.startsWith("-") ? -1 : 1;
-    const val = SORT_KEYS[key] || ((r) => r[key]);
-    rows = [...rows].sort((a, b) => {
-      const x = val(a);
-      const y = val(b);
-      return (x < y ? -1 : x > y ? 1 : 0) * dir;
-    });
   }
   return rows;
 }
 
-const data = {"works":[{"designer":"Théo Ballmer","work":"Büro","year":1928,"kind":"poster","url":"https://en.wikipedia.org/wiki/Theo_Ballmer"},{"designer":"Théo Ballmer","work":"100 Jahre Lichtdruck","year":1928,"kind":"poster","url":"https://en.wikipedia.org/wiki/Theo_Ballmer"},{"designer":"Max Bill","work":"USA baut, Kunstgewerbemuseum","year":1945,"kind":"poster","url":"https://en.wikipedia.org/wiki/Max_Bill"},{"designer":"Max Bill","work":"Form","year":1952,"kind":"book","url":"https://en.wikipedia.org/wiki/Max_Bill"},{"designer":"Max Bill","work":"Ulmer Hocker","year":1954,"kind":"object","url":"https://en.wikipedia.org/wiki/Ulm_stool"},{"designer":"Max Bill","work":"Junghans Kitchen Clock","year":1956,"kind":"object","url":"https://en.wikipedia.org/wiki/Max_Bill"},{"designer":"Hermann Eidenbenz","work":"Clarendon","year":1953,"kind":"typeface","url":"https://en.wikipedia.org/wiki/Clarendon_(typeface)"},{"designer":"Adrian Frutiger","work":"Univers","year":1957,"kind":"typeface","url":"https://en.wikipedia.org/wiki/Univers"},{"designer":"Adrian Frutiger","work":"OCR-B","year":1968,"kind":"typeface","url":"https://en.wikipedia.org/wiki/OCR-B"},{"designer":"Adrian Frutiger","work":"Frutiger","year":1976,"kind":"typeface","url":"https://en.wikipedia.org/wiki/Frutiger_(typeface)"},{"designer":"Adrian Frutiger","work":"Avenir","year":1988,"kind":"typeface","url":"https://en.wikipedia.org/wiki/Avenir_(typeface)"},{"designer":"Karl Gerstner","work":"Designing Programmes","year":1964,"kind":"book","url":"https://en.wikipedia.org/wiki/Karl_Gerstner"},{"designer":"Karl Gerstner","work":"Compendium for Literates","year":1972,"kind":"book","url":"https://en.wikipedia.org/wiki/Karl_Gerstner"},{"designer":"Walter Herdeg","work":"Graphis","year":1944,"kind":"magazine","url":"https://en.wikipedia.org/wiki/Graphis"},{"designer":"Armin Hofmann","work":"Stadt Theater Basel","year":1954,"kind":"poster","url":"https://en.wikipedia.org/wiki/Armin_Hofmann"},{"designer":"Armin Hofmann","work":"Giselle, Basler Freilichtspiele","year":1959,"kind":"poster","url":"https://en.wikipedia.org/wiki/Armin_Hofmann"},{"designer":"Armin Hofmann","work":"Wilhelm Tell","year":1963,"kind":"poster","url":"https://en.wikipedia.org/wiki/Armin_Hofmann"},{"designer":"Armin Hofmann","work":"Graphic Design Manual","year":1965,"kind":"book","url":"https://en.wikipedia.org/wiki/Armin_Hofmann"},{"designer":"Max Huber","work":"Gran Premio dell'Autodromo, Monza","year":1948,"kind":"poster","url":"https://en.wikipedia.org/wiki/Max_Huber_(graphic_designer)"},{"designer":"Max Huber","work":"La Rinascente","year":1950,"kind":"identity","url":"https://en.wikipedia.org/wiki/Max_Huber_(graphic_designer)"},{"designer":"Ernst Keller","work":"Das Neue Heim","year":1926,"kind":"poster","url":"https://en.wikipedia.org/wiki/Ernst_Keller_(graphic_designer)"},{"designer":"Lora Lamm","work":"Pirelli","year":1959,"kind":"poster","url":"https://en.wikipedia.org/wiki/Lora_Lamm"},{"designer":"Herbert Leupin","work":"Tribune de Lausanne","year":1955,"kind":"poster","url":"https://en.wikipedia.org/wiki/Herbert_Leupin"},{"designer":"Richard Paul Lohse","work":"Zürcher Künstler im Helmhaus","year":1952,"kind":"poster","url":"https://en.wikipedia.org/wiki/Richard_Paul_Lohse"},{"designer":"Herbert Matter","work":"Pontresina Engadin","year":1935,"kind":"poster","url":"https://en.wikipedia.org/wiki/Herbert_Matter"},{"designer":"Herbert Matter","work":"All Roads Lead to Switzerland","year":1935,"kind":"poster","url":"https://en.wikipedia.org/wiki/Herbert_Matter"},{"designer":"Max Miedinger","work":"Helvetica","year":1957,"kind":"typeface","url":"https://en.wikipedia.org/wiki/Helvetica"},{"designer":"Josef Müller-Brockmann","work":"Schützt das Kind!","year":1953,"kind":"poster","url":"https://en.wikipedia.org/wiki/Josef_M%C3%BCller-Brockmann"},{"designer":"Josef Müller-Brockmann","work":"Beethoven, Tonhalle Zürich","year":1955,"kind":"poster","url":"https://en.wikipedia.org/wiki/Josef_M%C3%BCller-Brockmann"},{"designer":"Josef Müller-Brockmann","work":"musica viva","year":1957,"kind":"poster","url":"https://en.wikipedia.org/wiki/Josef_M%C3%BCller-Brockmann"},{"designer":"Josef Müller-Brockmann","work":"Der Film, Kunstgewerbemuseum","year":1960,"kind":"poster","url":"https://en.wikipedia.org/wiki/Josef_M%C3%BCller-Brockmann"},{"designer":"Josef Müller-Brockmann","work":"The Graphic Artist and his Design Problems","year":1961,"kind":"book","url":"https://en.wikipedia.org/wiki/Josef_M%C3%BCller-Brockmann"},{"designer":"Josef Müller-Brockmann","work":"Grid Systems in Graphic Design","year":1981,"kind":"book","url":"https://en.wikipedia.org/wiki/Josef_M%C3%BCller-Brockmann"},{"designer":"Hans Neuburg","work":"Neue Grafik","year":1958,"kind":"magazine","url":"https://en.wikipedia.org/wiki/Neue_Grafik"},{"designer":"Siegfried Odermatt","work":"Union Safes","year":1968,"kind":"poster","url":"https://en.wikipedia.org/wiki/Siegfried_Odermatt"},{"designer":"Celestino Piatti","work":"dtv book covers","year":1961,"kind":"identity","url":"https://en.wikipedia.org/wiki/Celestino_Piatti"},{"designer":"Emil Ruder","work":"Typographie: A Manual of Design","year":1967,"kind":"book","url":"https://en.wikipedia.org/wiki/Emil_Ruder"},{"designer":"Rosmarie Tissi","work":"Druckerei Anton Schöb","year":1981,"kind":"poster","url":"https://en.wikipedia.org/wiki/Rosmarie_Tissi"},{"designer":"Niklaus Troxler","work":"McCoy Tyner Sextet","year":1980,"kind":"poster","url":"https://en.wikipedia.org/wiki/Niklaus_Troxler"},{"designer":"Jan Tschichold","work":"Die neue Typographie","year":1928,"kind":"book","url":"https://en.wikipedia.org/wiki/Die_neue_Typographie"},{"designer":"Jan Tschichold","work":"Der Berufsphotograph","year":1938,"kind":"poster","url":"https://en.wikipedia.org/wiki/Jan_Tschichold"},{"designer":"Jan Tschichold","work":"Sabon","year":1967,"kind":"typeface","url":"https://en.wikipedia.org/wiki/Sabon"},{"designer":"Carlo Vivarelli","work":"Für das Alter","year":1949,"kind":"poster","url":"https://en.wikipedia.org/wiki/Carlo_Vivarelli"},{"designer":"Wolfgang Weingart","work":"Typografische Monatsblätter covers","year":1973,"kind":"magazine","url":"https://en.wikipedia.org/wiki/Wolfgang_Weingart"}]};
+const data = {"events":[{"date":"Mon 11/9","time":"9:30 AM - 11:30 AM","title":"Board Meeting","kind":"civic","url":"https://example.com/marin/board-meeting"},{"date":"Wed 11/11","time":"10:00 AM - 12:45 PM","title":"Planning Commission Workshop","kind":"civic","url":"https://example.com/marin/planning-workshop"},{"date":"Thu 11/12","time":"6:30 PM - 10:00 PM","title":"Open Space Community Forum","kind":"forum","url":"https://example.com/marin/open-space-forum"},{"date":"Sat 11/14","time":"11:00 AM - 4:30 PM","title":"Farmers Market and Maker Fair","kind":"market","url":"https://example.com/marin/farmers-market"}]};
 
-// Page-side wiring for the demo: column spec and chrome. Written as a plain
-// script (no imports/exports) — the build inlines it after the engine, the
-// query function, and the data, which it references as globals.
-const works = initListTable({
-  table: "#works",
+// Marin-style overflow demonstrator: narrow date/time columns followed by a
+// title column. The long time values should stay inside their own column.
+initListTable({
+  table: "#marin-events",
   data,
   query,
   rowHref: (r) => r.url,
-  defaultSort: "designer", // data.json ships ordered by designer
-  downloadFilename: "swiss-graphic-design",
+  download: false,
 
   columns: [
     {
-      id: "designer", param: "designer", sortable: true, group: true,
-      width: "28%", mobileWidth: "26%", variants: ["strong"],
-      key: (r) => r.designer, label: (r) => r.designer, value: (r) => r.designer,
+      id: "date", param: "date",
+      width: "28%", mobileWidth: "30%", variants: ["mono", "nowrap"],
+      label: (r) => r.date, value: (r) => r.date,
     },
     {
-      id: "work", width: "44%", mobileWidth: "38%",
-      label: (r) => r.work, href: (r) => r.url,
+      id: "time",
+      width: "32%", mobileWidth: "34%", variants: ["mono", "muted", "nowrap"],
+      label: (r) => r.time,
     },
     {
-      // group: runs of equal years collapse into one rowspan cell whose
-      // hairline ditto shows how far the value extends
-      id: "year", param: "year", sortable: true, group: true,
-      width: "12%", mobileWidth: "13%", variants: ["mono"],
-      key: (r) => r.year, label: (r) => String(r.year), value: (r) => String(r.year),
-    },
-    {
-      // kind's uppercase tags ("TYPEFACE") need more of a narrow screen than
-      // their 16% desktop share
-      id: "kind", param: "kind", group: true,
-      width: "16%", mobileWidth: "23%", variants: ["tag", "muted"],
-      key: (r) => r.kind, label: (r) => r.kind, value: (r) => r.kind,
+      id: "event",
+      width: "40%", mobileWidth: "36%", variants: ["strong"],
+      label: (r) => r.title, href: (r) => r.url,
     },
   ],
 });
 
 initAbout({
   container: "#title",
-  html: "<p><strong>tabelle</strong> renders any dataset as one flat, URL-addressable table. Click headers to sort, values to filter, rows to visit the source. Escape clears everything.</p><p>This demo lists landmark works of Swiss graphic design. It is a single self-contained file — it works from file:// — and, served over http, it is also a <a href=\"https://github.com/mrjf/sapi\">sapi</a> site.</p>",
+  html: "<p>This demo mirrors the narrow date/time/event layout used by Marin-style listings. Long time values are clipped at their column edge instead of bleeding into the event title.</p>",
 });
   </script>
 </body>

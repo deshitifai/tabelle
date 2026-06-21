@@ -1,0 +1,32 @@
+{
+  "events": [
+    {
+      "date": "Mon 11/9",
+      "time": "9:30 AM - 11:30 AM",
+      "title": "Board Meeting",
+      "kind": "civic",
+      "url": "https://example.com/marin/board-meeting"
+    },
+    {
+      "date": "Wed 11/11",
+      "time": "10:00 AM - 12:45 PM",
+      "title": "Planning Commission Workshop",
+      "kind": "civic",
+      "url": "https://example.com/marin/planning-workshop"
+    },
+    {
+      "date": "Thu 11/12",
+      "time": "6:30 PM - 10:00 PM",
+      "title": "Open Space Community Forum",
+      "kind": "forum",
+      "url": "https://example.com/marin/open-space-forum"
+    },
+    {
+      "date": "Sat 11/14",
+      "time": "11:00 AM - 4:30 PM",
+      "title": "Farmers Market and Maker Fair",
+      "kind": "market",
+      "url": "https://example.com/marin/farmers-market"
+    }
+  ]
+}

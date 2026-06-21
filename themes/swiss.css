@@ -80,7 +80,10 @@ table.lt { border-collapse: separate; border-spacing: 0; width: 100%; table-layo
 .lt th.has-value .arrow { display: none; }
 .lt th.has-value:not(.filtered) { cursor: default; }
 
-.lt td { font-size: 0.875rem; line-height: 1.5; }
+.lt td {
+  font-size: 0.875rem; line-height: 1.5;
+  overflow: clip; overflow-wrap: anywhere;
+}
 .lt.lt-rowlink tbody td { cursor: pointer; }
 .lt tbody a[data-filter] { cursor: pointer; }
 /* underline = a click here filters */
