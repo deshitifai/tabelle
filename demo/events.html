@@ -20,6 +20,8 @@
   --line: #e7e5e4;
   --title-size: clamp(1.8rem, 4.5vw, 3.2rem);
   --title-block: calc(var(--title-size) + 2.1rem);
+  --dateline-block: 0px;
+  --page-inset: max(1.5rem, calc((100vw - 1100px) / 2 + 1.5rem));
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -44,14 +46,18 @@ h1 {
   position: sticky; top: 0; z-index: 3; background: var(--bg);
   will-change: transform; /* compositor-driven sticky: no main-thread lag */
 }
+body.lt-has-dateline h1 {
+  position: fixed; left: var(--page-inset); right: var(--page-inset);
+}
 
 /* ---- table structure ---- */
 table.lt { border-collapse: separate; border-spacing: 0; width: 100%; table-layout: fixed;
   isolation: isolate; }
+body.lt-has-dateline table.lt { margin-top: calc(var(--title-block) + var(--dateline-block)); }
 .lt th, .lt td { text-align: left; vertical-align: top; padding: 0.55rem 1rem 0.55rem 0; }
 
 .lt th {
-  position: sticky; top: var(--title-block); z-index: 2; background: var(--bg);
+  position: sticky; top: calc(var(--title-block) + var(--dateline-block)); z-index: 2; background: var(--bg);
   padding-top: 0; padding-bottom: 0.3rem; height: 1.9rem; cursor: pointer;
   border-bottom: 1px solid var(--fg);
   white-space: nowrap;
@@ -61,7 +67,7 @@ table.lt { border-collapse: separate; border-spacing: 0; width: 100%; table-layo
    title and the sticky header, regardless of zoom or fractional pixels */
 .lt th::before {
   content: ""; position: absolute; left: 0; right: 0; bottom: 100%;
-  height: var(--title-block); background: var(--bg);
+  height: calc(var(--title-block) + var(--dateline-block)); background: var(--bg);
 }
 .lt th .arrow, .lt th .clear {
   position: absolute; top: 0; line-height: 1.6rem;
@@ -117,7 +123,7 @@ table.lt { border-collapse: separate; border-spacing: 0; width: 100%; table-layo
 }
 /* only multi-row group cells pin; single-row values scroll with their row */
 .lt td.lt-group[rowspan] > a, .lt td.lt-group[rowspan] > .lt-pin {
-  position: sticky; top: calc(var(--title-block) + 2.2rem); display: inline-block; z-index: 0; }
+  position: sticky; top: calc(var(--title-block) + var(--dateline-block) + 2.2rem); display: inline-block; z-index: 0; }
 .lt td a.lt-active-filter { text-decoration: underline; }
 .lt td .clear {
   font-family: "IBM Plex Mono", monospace; font-size: 0.75rem;
@@ -146,10 +152,14 @@ table.lt { border-collapse: separate; border-spacing: 0; width: 100%; table-layo
 
 /* ---- dateline (dateline.js): one thin line of event dates ---- */
 .lt-dateline {
-  position: relative; z-index: 3;
+  position: relative; z-index: 3; background: var(--bg);
   display: flex; gap: 1rem; align-items: flex-end;
   margin: 1.1rem 0 0.45rem; padding-bottom: 0.2rem;
   overflow-x: auto; scrollbar-width: thin;
+}
+body.lt-has-dateline .lt-dateline {
+  position: fixed; top: var(--title-block); left: var(--page-inset); right: var(--page-inset);
+  margin: 0; padding: 1.1rem 0 0.65rem;
 }
 .lt-dateline-month { flex: 0 0 auto; min-width: max-content; }
 .lt-dateline-month-label {
@@ -1112,6 +1122,7 @@ function initSubscribe(config) {
 function initDateline(config) {
   const container =
     typeof config.container === "string" ? document.querySelector(config.container) : config.container;
+  container.ownerDocument.body.classList.add("lt-has-dateline");
   const root = document.createElement("div");
   root.className = "lt-dateline";
   root.setAttribute("role", "group");
@@ -1128,6 +1139,16 @@ function initDateline(config) {
   let dragStart = "";
   let dragging = false;
   let dragMoved = false;
+
+  function syncDatelineBlock() {
+    const win = root.ownerDocument.defaultView || window;
+    const style = win.getComputedStyle(root);
+    const block =
+      root.getBoundingClientRect().height +
+      parseFloat(style.marginTop || "0") +
+      parseFloat(style.marginBottom || "0");
+    root.ownerDocument.documentElement.style.setProperty("--dateline-block", `${Math.ceil(block)}px`);
+  }
 
   function dayKey(value) {
     return value ? String(value).slice(0, 10) : "";
@@ -1241,7 +1262,10 @@ function initDateline(config) {
 
     root.textContent = "";
     buttons = [];
-    if (!days.length) return;
+    if (!days.length) {
+      root.ownerDocument.documentElement.style.setProperty("--dateline-block", "0px");
+      return;
+    }
 
     let currentMonth = "";
     let month = null;
@@ -1302,6 +1326,7 @@ function initDateline(config) {
       buttons.push({ button, day, selectable });
     }
     sync();
+    syncDatelineBlock();
   }
 
   document.addEventListener("pointerup", () => {
@@ -1309,6 +1334,7 @@ function initDateline(config) {
     dragging = false;
     dragStart = "";
   });
+  window.addEventListener("resize", syncDatelineBlock);
 
   root.addEventListener("mouseover", (event) => {
     const button = event.target.closest(".lt-dateline-day");

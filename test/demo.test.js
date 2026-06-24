@@ -96,6 +96,23 @@ test("event table date filters and dateline selection stay aligned", async () =>
   assert.equal(doc.querySelectorAll("tbody tr").length, 1);
 });
 
+test("the event demonstrator fixes the dateline/header stack above scrolling rows", async () => {
+  const dom = await JSDOM.fromFile(eventsDemoFile, {
+    runScripts: "dangerously",
+    pretendToBeVisual: true,
+  });
+  const doc = dom.window.document;
+  const css = doc.querySelector("style").textContent;
+  assert.ok(doc.body.classList.contains("lt-has-dateline"));
+  assert.match(css, /body\.lt-has-dateline \.lt-dateline \{/);
+  assert.match(css, /position: fixed; top: var\(--title-block\)/);
+  assert.match(
+    css,
+    /body\.lt-has-dateline table\.lt \{ margin-top: calc\(var\(--title-block\) \+ var\(--dateline-block\)\); \}/,
+  );
+  assert.match(css, /\.lt th \{\s*position: sticky; top: calc\(var\(--title-block\) \+ var\(--dateline-block\)\)/);
+});
+
 test("hovering a dateline date previews the same date filter in the table", async () => {
   const dom = await JSDOM.fromFile(eventsDemoFile, {
     runScripts: "dangerously",

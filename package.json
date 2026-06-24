@@ -1,6 +1,6 @@
 {
   "name": "@mrjf/tabelle",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "a single-page, URL-addressable list table — sort, filter, group; every view is an address",
   "type": "module",
   "main": "listtable.js",

@@ -19,6 +19,7 @@
 export function initDateline(config) {
   const container =
     typeof config.container === "string" ? document.querySelector(config.container) : config.container;
+  container.ownerDocument.body.classList.add("lt-has-dateline");
   const root = document.createElement("div");
   root.className = "lt-dateline";
   root.setAttribute("role", "group");
@@ -35,6 +36,16 @@ export function initDateline(config) {
   let dragStart = "";
   let dragging = false;
   let dragMoved = false;
+
+  function syncDatelineBlock() {
+    const win = root.ownerDocument.defaultView || window;
+    const style = win.getComputedStyle(root);
+    const block =
+      root.getBoundingClientRect().height +
+      parseFloat(style.marginTop || "0") +
+      parseFloat(style.marginBottom || "0");
+    root.ownerDocument.documentElement.style.setProperty("--dateline-block", `${Math.ceil(block)}px`);
+  }
 
   function dayKey(value) {
     return value ? String(value).slice(0, 10) : "";
@@ -148,7 +159,10 @@ export function initDateline(config) {
 
     root.textContent = "";
     buttons = [];
-    if (!days.length) return;
+    if (!days.length) {
+      root.ownerDocument.documentElement.style.setProperty("--dateline-block", "0px");
+      return;
+    }
 
     let currentMonth = "";
     let month = null;
@@ -209,6 +223,7 @@ export function initDateline(config) {
       buttons.push({ button, day, selectable });
     }
     sync();
+    syncDatelineBlock();
   }
 
   document.addEventListener("pointerup", () => {
@@ -216,6 +231,7 @@ export function initDateline(config) {
     dragging = false;
     dragStart = "";
   });
+  window.addEventListener("resize", syncDatelineBlock);
 
   root.addEventListener("mouseover", (event) => {
     const button = event.target.closest(".lt-dateline-day");

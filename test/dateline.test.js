@@ -13,7 +13,10 @@ const data = [
 ];
 
 function setDom(url = "https://tabelle.test/") {
-  dom = new JSDOM('<!doctype html><html><body><div id="dates"></div></body></html>', { url });
+  dom = new JSDOM(
+    '<!doctype html><html><head><style>.lt-dateline{margin:10px 0 6px}</style></head><body><div id="dates"></div></body></html>',
+    { url },
+  );
   global.window = dom.window;
   global.document = dom.window.document;
   global.location = dom.window.location;
@@ -72,6 +75,25 @@ test("renders every date in the event span under month labels", () => {
   assert.equal(days[0], "2026-06-01");
   assert.equal(days.at(-1), "2026-07-02");
   assert.ok(days.includes("2026-06-02"), "empty dates stay visible");
+});
+
+test("writes a dateline block offset for sticky table headers", () => {
+  const originalRect = dom.window.HTMLElement.prototype.getBoundingClientRect;
+  dom.window.HTMLElement.prototype.getBoundingClientRect = function getBoundingClientRect() {
+    if (this.classList && this.classList.contains("lt-dateline")) {
+      return { x: 0, y: 0, top: 0, right: 0, bottom: 40, left: 0, width: 0, height: 40 };
+    }
+    return originalRect.call(this);
+  };
+  try {
+    init();
+    assert.equal(
+      dom.window.document.documentElement.style.getPropertyValue("--dateline-block"),
+      "56px",
+    );
+  } finally {
+    dom.window.HTMLElement.prototype.getBoundingClientRect = originalRect;
+  }
 });
 
 test("dates without events are gray disabled buttons with day-of-week hover text", () => {
