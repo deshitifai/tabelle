@@ -98,7 +98,17 @@ body.lt-has-dateline table.lt { margin-top: calc(var(--title-block) + var(--date
    remains for companion views that intentionally fade non-matches */
 .lt td { transition: opacity 0.12s ease; }
 .lt tbody tr.lt-dim > td:not([rowspan]), .lt tbody td.lt-dim { opacity: 0.4; }
-.lt tbody tr.lt-mark > td:last-child { box-shadow: inset -2px 0 0 #C8102E; }
+/* The accent bar marks the row's RIGHT EDGE, not its last cell. An inset
+   box-shadow on td:last-child lands mid-table on grouped rows, whose trailing
+   rowspanned cell is omitted from the row (it lives on the group head). Anchor a
+   full-height pseudo-element to the row instead so the bar is always flush right
+   regardless of which columns render. (border-collapse: separate makes a direct
+   box-shadow on <tr> unreliable, hence the positioned ::after.) */
+.lt tbody tr.lt-mark { position: relative; }
+.lt tbody tr.lt-mark::after {
+  content: ""; position: absolute; top: 0; bottom: 0; right: 0;
+  width: 2px; background: #C8102E; pointer-events: none;
+}
 /* ditto mark: a hairline showing how far a pinned value's range extends */
 /* overflow:clip (NOT hidden — hidden would break sticky) hard-clips label
    painting to the cell, so no engine's compositing can bleed it over the

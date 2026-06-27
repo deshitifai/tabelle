@@ -119,7 +119,12 @@ test("hovering a dateline date previews the same date filter in the table", asyn
     pretendToBeVisual: true,
   });
   const doc = dom.window.document;
-  assert.match(doc.querySelector("style").textContent, /\.lt tbody tr\.lt-mark > td:last-child \{ box-shadow: inset -2px 0 0 #C8102E; \}/);
+  // The accent bar is a full-height pseudo-element on the marked row (flush to
+  // the row's right edge) so it doesn't land mid-table on grouped rows whose
+  // trailing rowspanned cell is omitted.
+  const style = doc.querySelector("style").textContent;
+  assert.match(style, /\.lt tbody tr\.lt-mark::after \{/);
+  assert.match(style, /background: #C8102E/);
   const june4 = doc.querySelector('.lt-dateline-day[data-date="2026-06-04"]');
   june4.dispatchEvent(new dom.window.MouseEvent("mouseover", { bubbles: true }));
   const marked = [...doc.querySelectorAll("tbody tr.lt-mark")];
