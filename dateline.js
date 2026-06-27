@@ -20,11 +20,19 @@ export function initDateline(config) {
   const container =
     typeof config.container === "string" ? document.querySelector(config.container) : config.container;
   container.ownerDocument.body.classList.add("lt-has-dateline");
-  const root = document.createElement("div");
-  root.className = "lt-dateline";
-  root.setAttribute("role", "group");
-  root.setAttribute("aria-label", config.ariaLabel || "event dateline filter");
-  container.appendChild(root);
+  // Adopt a server-rendered strip when present so the dateline paints with the
+  // page instead of popping in after JS runs. The markup must match what
+  // render() produces (.lt-dateline-month > label + .lt-dateline-days >
+  // .lt-dateline-cell > button.lt-dateline-day[data-date]). Falls back to
+  // building the DOM dynamically when no pre-rendered strip exists.
+  const prerendered = container.querySelector(":scope > .lt-dateline");
+  const root = prerendered || document.createElement("div");
+  if (!prerendered) {
+    root.className = "lt-dateline";
+    root.setAttribute("role", "group");
+    root.setAttribute("aria-label", config.ariaLabel || "event dateline filter");
+    container.appendChild(root);
+  }
 
   const param = config.param || "date";
   const weekStart = config.weekStart === "mon" || config.weekStart === "monday" || config.weekStart === 1 ? 1 : 0;
@@ -36,6 +44,7 @@ export function initDateline(config) {
   let dragStart = "";
   let dragging = false;
   let dragMoved = false;
+  let hydrated = false;
 
   function syncDatelineBlock() {
     const win = root.ownerDocument.defaultView || window;
@@ -157,6 +166,29 @@ export function initDateline(config) {
     selected = new Set(readSelected().filter((day) => present.has(day)));
     if (anchor && !present.has(anchor)) anchor = selected.size ? [...selected].sort()[0] : "";
 
+    // Hydrate a server-rendered strip on the first render: wire handlers onto
+    // the existing buttons instead of rebuilding the DOM (avoids the pop-in).
+    // Only adopt when the markup matches the days we'd render; otherwise rebuild
+    // from scratch so a stale/mismatched strip can't desync the filter.
+    if (!hydrated) {
+      hydrated = true;
+      const existing = [...root.querySelectorAll(".lt-dateline-day[data-date]")];
+      if (existing.length && existing.length === days.length &&
+          existing.every((button, index) => button.dataset.date === days[index])) {
+        buttons = [];
+        for (const button of existing) {
+          const day = button.dataset.date;
+          const selectable = present.has(day);
+          button.disabled = !selectable;
+          if (selectable) wireButton(button, day);
+          buttons.push({ button, day, selectable });
+        }
+        sync();
+        syncDatelineBlock();
+        return;
+      }
+    }
+
     root.textContent = "";
     buttons = [];
     if (!days.length) {
@@ -196,34 +228,37 @@ export function initDateline(config) {
       button.textContent = String(d.getDate());
       button.title = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
       button.setAttribute("aria-label", button.title);
-      if (selectable) {
-        button.addEventListener("click", (event) => {
-          if (dragMoved) {
-            event.preventDefault();
-            dragMoved = false;
-            return;
-          }
-          choose(day, event);
-        });
-        button.addEventListener("pointerdown", (event) => {
-          if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey) return;
-          dragging = true;
-          dragMoved = false;
-          dragStart = day;
-        });
-        button.addEventListener("pointerenter", () => {
-          if (dragging && dragStart) {
-            dragMoved = day !== dragStart;
-            write(range(dragStart, day));
-          }
-        });
-      }
+      if (selectable) wireButton(button, day);
       cell.appendChild(button);
       month.querySelector(".lt-dateline-days").appendChild(cell);
       buttons.push({ button, day, selectable });
     }
     sync();
     syncDatelineBlock();
+  }
+
+  // Attach click/drag selection handlers to a (new or server-rendered) day button.
+  function wireButton(button, day) {
+    button.addEventListener("click", (event) => {
+      if (dragMoved) {
+        event.preventDefault();
+        dragMoved = false;
+        return;
+      }
+      choose(day, event);
+    });
+    button.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey) return;
+      dragging = true;
+      dragMoved = false;
+      dragStart = day;
+    });
+    button.addEventListener("pointerenter", () => {
+      if (dragging && dragStart) {
+        dragMoved = day !== dragStart;
+        write(range(dragStart, day));
+      }
+    });
   }
 
   document.addEventListener("pointerup", () => {

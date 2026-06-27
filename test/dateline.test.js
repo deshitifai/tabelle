@@ -222,3 +222,88 @@ test("escape mirrors cleared table params by removing selected styling", async (
   assert.ok(!button.classList.contains("lt-selected"));
   assert.notEqual(dom.window.document.activeElement, button);
 });
+
+// --- Server-rendered (hydrated) dateline -------------------------------------
+
+// Build the static markup initDateline expects so the strip can paint with the
+// page. Mirrors render(): months -> label + days -> cells -> day buttons.
+function renderDatelineHtml(rows, { ariaLabel = "event dateline filter" } = {}) {
+  const dayKey = (v) => (v ? String(v).slice(0, 10) : "");
+  const fmt = (d) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const present = new Set();
+  let min = "", max = "";
+  for (const r of rows) {
+    const start = dayKey(r.date);
+    if (!start) continue;
+    let end = dayKey(r.end) || start;
+    if (end < start) end = start;
+    const c = new Date(start + "T00:00:00");
+    while (fmt(c) <= end) { present.add(fmt(c)); c.setDate(c.getDate() + 1); }
+    if (!min || start < min) min = start;
+    if (!max || end > max) max = end;
+  }
+  const days = [];
+  if (min) { const c = new Date(min + "T00:00:00"); while (fmt(c) <= max) { days.push(fmt(c)); c.setDate(c.getDate() + 1); } }
+  let html = `<div class="lt-dateline" role="group" aria-label="${ariaLabel}">`;
+  let currentMonth = "";
+  for (const day of days) {
+    const d = new Date(day + "T00:00:00");
+    const monthKey = day.slice(0, 7);
+    if (monthKey !== currentMonth) {
+      if (currentMonth) html += `</div></div>`;
+      currentMonth = monthKey;
+      const label = d.toLocaleDateString("en-US", { month: "long" }).toLowerCase();
+      html += `<div class="lt-dateline-month"><div class="lt-dateline-month-label">${label}</div><div class="lt-dateline-days">`;
+    }
+    const selectable = present.has(day);
+    const title = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+    html += `<div class="lt-dateline-cell"><button type="button" class="lt-dateline-day" data-date="${day}"${selectable ? "" : " disabled"} title="${title}" aria-label="${title}">${d.getDate()}</button></div>`;
+  }
+  if (currentMonth) html += `</div></div>`;
+  html += `</div>`;
+  return html;
+}
+
+function setDomWith(markup) {
+  dom = new JSDOM(`<!doctype html><html><body><div id="dates">${markup}</div></body></html>`, { url: "https://tabelle.test/" });
+  global.window = dom.window;
+  global.document = dom.window.document;
+  global.location = dom.window.location;
+  global.history = dom.window.history;
+}
+
+test("hydrates a server-rendered strip without rebuilding the DOM", () => {
+  setDomWith(renderDatelineHtml(data));
+  const before = dom.window.document.querySelector(".lt-dateline");
+  const beforeButtons = before.querySelectorAll(".lt-dateline-day");
+  init();
+  const after = dom.window.document.querySelector(".lt-dateline");
+  // Same element instance is adopted; not replaced with a freshly built strip.
+  assert.equal(after, before);
+  assert.equal(dom.window.document.querySelectorAll(".lt-dateline").length, 1);
+  // Same button nodes are reused (hydration, not re-render).
+  assert.equal(after.querySelectorAll(".lt-dateline-day").length, beforeButtons.length);
+  assert.equal(after.querySelectorAll(".lt-dateline-day")[0], beforeButtons[0]);
+});
+
+test("clicking a server-rendered day selects it after hydration", () => {
+  setDomWith(renderDatelineHtml(data));
+  const { selector } = init();
+  const button = dom.window.document.querySelector('.lt-dateline-day[data-date="2026-06-03"]');
+  click(button);
+  assert.deepEqual(selector.selected(), ["2026-06-03"]);
+  assert.ok(button.classList.contains("lt-selected"));
+});
+
+test("rebuilds when the server-rendered strip does not match the data", () => {
+  // Strip rendered for different data -> initDateline must rebuild, not adopt stale days.
+  setDomWith(renderDatelineHtml([{ date: "2030-01-01", end: "2030-01-01" }]));
+  const { selector } = init();
+  // The rebuilt strip reflects `data`, not the stale 2030 day.
+  assert.equal(dom.window.document.querySelector('.lt-dateline-day[data-date="2030-01-01"]'), null);
+  const button = dom.window.document.querySelector('.lt-dateline-day[data-date="2026-06-01"]');
+  assert.ok(button);
+  click(button);
+  assert.deepEqual(selector.selected(), ["2026-06-01"]);
+});
